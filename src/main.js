@@ -1,7 +1,9 @@
 import axios from 'axios';
-import Notiflix from 'notiflix';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css'; 
 import SimpleLightbox from 'simplelightbox';
-import "simplelightbox/dist/simple-lightbox.min.css";
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
 
 
 const API_KEY = '46036688-33de53886d5db16dc3a765a31';
@@ -10,12 +12,11 @@ const input = document.querySelector('#input');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 
-let currentPage = 1;
-const perPage = 40;
-let totalPages = 0;
-let currentQuery = '';
-let lightbox
-const clear = false;
+let currentPage   = 1;
+const perPage     = 40;
+let totalPages    = 0;
+let currentQuery  = '';
+let lightbox;
 
 document.addEventListener('DOMContentLoaded', () => {
   lightbox = new SimpleLightbox('.gallery a', {
@@ -36,11 +37,11 @@ function buildUrl(query, page) {
 }
 
 function renderImage(hits) {
-  hits.forEach(({ webformatURL, largeImageURL , tags, likes, views, comments, downloads }) => {
+  hits.forEach(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
     gallery.insertAdjacentHTML('beforeend', `
       <div class="photo-card">
         <a href="${largeImageURL}">
-        <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+          <img src="${webformatURL}" alt="${tags}" loading="lazy" />
         </a>
         <div class="info">
           <p class="info-item"><b>Likes: ${likes}</b></p>
@@ -54,53 +55,67 @@ function renderImage(hits) {
   lightbox.refresh();
 }
 
- 
-async function fetchImages(query, page , clear = false) {
-    await axios.get(buildUrl(query, page)).then(res => {
-        const hits = res.data.hits;
-        const totalHits = res.data.totalHits;
-        totalPages = Math.ceil(totalHits / perPage);
+async function fetchImages(query, page, clear = false) {
+  try {
+    const res = await axios.get(buildUrl(query, page));
+    const hits = res.data.hits;
+    const totalHits = res.data.totalHits;
+    totalPages = Math.ceil(totalHits / perPage);
+
+    if (clear) {
+      gallery.innerHTML = '';
+    }
+
+    if (hits.length === 0) {
+      toastr.error('Przepraszamy, nie znaleziono wyników');
+      loadMoreBtn.classList.add('hidden');
+      return;
+    }
+
+    renderImage(hits);
+
+    if (page < totalPages) {
+      loadMoreBtn.classList.remove('hidden');
+    } else {
+      loadMoreBtn.classList.add('hidden');
+      toastr.info("We're sorry, but you've reached the end of search results.");
+    }
     
-        if (clear) {
-          gallery.innerHTML = '';             
-        }
-    
-        if (hits.length === 0) {
-          Notiflix.Notify.failure('Przepraszamy, nie znaleziono wyników');
-          loadMoreBtn.classList.add('hidden');
-          return;
-        }
-    
-        renderImage(hits);
-        if (page < totalPages) {
-          loadMoreBtn.classList.remove('hidden');
-        } else {
-          loadMoreBtn.classList.add('hidden');
-          Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-        }
-      }).catch(err => {
-        Notiflix.Notify.failure('Błąd ładowania zdjęć');
-        console.error(err);
-      });
+  } catch (err) {
+    toastr.error('Błąd ładowania zdjęć');
+    console.error(err);
+  }
 }
-
-
 
 form.addEventListener('submit', e => {
   e.preventDefault();
   const query = input.value.trim();
   if (!query) {
-    Notiflix.Notify.failure('Proszę wpisać frazę do wyszukania');
+    loadMoreBtn.classList.add('hidden');
+    toastr.error('Proszę wpisać frazę do wyszukania');
     return;
   }
   currentQuery = query;
   currentPage = 1;
   fetchImages(currentQuery, currentPage, true);
 });
-
-loadMoreBtn.addEventListener('click', () => {
+loadMoreBtn.addEventListener('click', async () => {
   if (currentPage < totalPages) {
     currentPage += 1;
-    fetchImages(currentQuery, currentPage, false);
+    await fetchImages(currentQuery, currentPage, false);
+    makeHeight()
   }
 });
+
+function makeHeight(){
+
+const divContainer = document.querySelector('.photo-card')
+if (!divContainer) {
+  console.log('Jeszcze go nie ma');
+} else {
+  const { height } = divContainer.getBoundingClientRect();
+
+  window.scrollBy({ top: height * 2, behavior: 'smooth' });
+}
+}
+

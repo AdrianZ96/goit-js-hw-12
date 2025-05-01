@@ -16,17 +16,25 @@
 .wrapper{
     height: 60px;
     display: flex;
-    background-color: rgb(83, 83, 182);
     align-items: center;
     justify-content: center;
 
 }
 .search-form input{
     padding: 10px 20px;
+    border: 1px solid #808080
 }
+.search-form input:hover{
+  border: 1px solid #000000;
+}
+.search-form input:focus{
+  border: 1px solid #4E75FF;
+}
+
+
 .search-form button{
   padding: 12px 28px;             
-  background-color: #B5703E;       
+  background: #4E75FF;    
   color: #FFFFFF;                  
   font-size: 1rem;                 
   font-weight: 600;                
@@ -37,12 +45,12 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 .search-form button:hover {
-  background-color: #9a5a31;       
+  background: #6C8CFF;       
   transform: translateY(-2px);
 }
 
 .search-form button:active {
-  background-color: #8b4f2c;       
+  background: #6C8CFF;       
   transform: translateY(0);
 }
 
@@ -54,7 +62,7 @@
  
   .gallery {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); 
+    grid-template-columns: repeat(3, 1fr); 
     gap: 16px;
     margin-top: 24px;
     padding: 16px;
@@ -78,7 +86,7 @@
  
   .photo-card img {
     width: 100%;
-    height: 140px;      
+    height: 200px;      
     object-fit: cover;  
     display: block;
   }
@@ -126,25 +134,22 @@
   .load-more {
     display: inline-block;           
     padding: 12px 28px;              
-    background-color: #B5703E;      
+    background: #4E75FF;
     color: #FFFFFF;                 
     font-size: 1rem;                 
     font-weight: 600;                
     border: none;                    
     border-radius: 6px;              
     cursor: pointer;                 
-    transition: background 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
   
   .load-more:hover {
-    background-color: #9a5a31;       
-    transform: translateY(-2px);
+    background: #6C8CFF;       
   }
   
   .load-more:active {
-    background-color: #8b4f2c;       
-    transform: translateY(0);
+    background: #6C8CFF;       
   }
   
   .load-more:focus {
